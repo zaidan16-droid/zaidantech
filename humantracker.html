@@ -129,38 +129,9 @@
         alert("Gagal ambil lokasi: " + err.message);
       });
     }
-    // Pembayaran Tripay
+    
    
-    function bayar() {
-     
- async function bayar() {
-      const payload = {
-        method: "QRIS", // kode metode pembayaran dari Tripay
-        amount: 10000,
-        name: "Zaidan",
-        email: "zaidanshafi6@gmail.com",
-        phone: "081391356533"
-      };
-
-      const res = await fetch('http://localhost:5500/api/create-transaction', {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(payload)
-      });
-
-      const data = await res.json();
-      console.log(data);
-
-      if (data.success) {
-        window.location.href = data.data.payment_url;
-      } else {
-        alert("Gagal membuat transaksi");
-      }
-    }
-  }
- 
+    
 
 
     
@@ -169,3 +140,4 @@
   </script>
 </body>
 </html>
+
