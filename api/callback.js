@@ -1,18 +1,26 @@
 export default async function handler(req, res) {
   try {
-    if (req.method !== 'POST') return res.status(405).end();
+    if (req.method !== 'POST') {
+      return res.status(405).json({ error: 'Hanya POST yang diizinkan' });
+    }
 
-    const { status, merchant_ref, is_closed_payment } = req.body;
+    const body = req.body;
+
+    console.log('Tripay Callback:', body);
+
+    const status = body.status;
+    const merchant_ref = body.merchant_ref;
 
     if (status === 'PAID') {
-      // Simpan status langganan di database kamu
-      console.log(`Pembayaran berhasil: ${merchant_ref}`);
+      console.log(`✅ Pembayaran berhasil untuk: ${merchant_ref}`);
+      // Kalau perlu, simpan ke database di sini
     }
 
     return res.status(200).json({ success: true });
 
   } catch (err) {
-    console.error('Error:', err);
-    return res.status(500).json({ error: 'Internal server error' });
+    console.error('❌ ERROR:', err.message);
+    return res.status(500).json({ error: 'Internal Server Error' });
   }
 }
+
