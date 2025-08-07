@@ -6,7 +6,7 @@ export default async function handler(req, res) {
 
     if (status === 'PAID') {
       // Simpan status langganan di database kamu
-      console.log(`Pembayaran berhasil: ${INV123}`);
+      console.log(`Pembayaran berhasil: ${merchant_ref}`);
     }
 
     return res.status(200).json({ success: true });
