@@ -1,11 +1,11 @@
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
 
-  const { status, merchant_ref, is_closed_payment } = req.body;
+  const { status, INV123, is_closed_payment } = req.body;
 
   if (status === 'PAID') {
     // Simpan status langganan di database kamu
-    console.log(`Pembayaran berhasil: ${merchant_ref}`);
+    console.log(`Pembayaran berhasil: ${INV123}`);
     // contoh: update Firestore/Supabase
   }
 
