@@ -9,8 +9,8 @@ export default async function handler(req, res) {
 
 
   const merchantCode = 'T43073'; // ganti dengan kode aslimu
-  const apiKey = 'DEV-LL680trseR5ykapP8MHOdUyTawnQlSidnIETKCm7    ';
-  const privateKey = 'b6nHA-E3B9J-LGL8v-t0MUr-OKQf6' ';
+  const apiKey = 'DEV-LL680trseR5ykapP8MHOdUyTawnQlSidnIETKCm7';
+  const privateKey = 'b6nHA-E3B9J-LGL8v-t0MUr-OKQf6';
     
 const { name, email, amount } = req.body;
     
@@ -31,20 +31,16 @@ const { name, email, amount } = req.body;
     callback_url: 'https://zaidantechno.vercel.app/api/callback',
     return_url: 'https://zaidantechno.vercel.app/success',
   };
-      const signature = crypto.createHmac("sha256", b6nHA-E3B9J-LGL8v-t0MUr-OKQf6)
-      .update(T43073 + payload.merchant_ref + payload.amount)
-      .digest("hex");
-  };
+      const response = await fetch("https://tripay.co.id/api-sandbox/transaction/create", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${DEV-LL680trseR5ykapP8MHOdUyTawnQlSidnIETKCm7}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ ...payload, signature }),
+    });
 
-  const response = await fetch('https://tripay.co.id/api-sandbox/transaction/create', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${DEV-LL680trseR5ykapP8MHOdUyTawnQlSidnIETKCm7}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(data),
-  });
-const data = await response.json();
+    const data = await response.json();
     res.status(200).json(data);
 
   } catch (error) {
