@@ -97,18 +97,16 @@ async function bayar() {
   }
 
   try {
-   const res = await fetch("/create-transaction", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify(payload),
-});
-
-const text = await res.text(); // ambil mentahan
-try {
-  const data = JSON.parse(text); // coba parse ke JSON
+  const res = await fetch("/create-transaction", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  const data = await res.json();
   console.log("Hasil:", data);
-} catch (e) {
-  console.error("Bukan JSON, ini isinya:", text); // debug kalau salah
+  // lanjut proses data di sini
+} catch (err) {
+  console.error("Fetch or JSON parse error:", err);
 }
 
 </script>
