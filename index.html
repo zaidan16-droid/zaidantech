@@ -62,7 +62,7 @@
     const name = document.getElementById("name").value;
     const email = document.getElementById("email").value;
 
-    const res = await fetch("/api/checkout", {
+    const res = await fetch("/api/checkout.js", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
