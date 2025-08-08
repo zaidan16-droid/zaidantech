@@ -31,20 +31,21 @@ const { name, email, amount } = req.body;
     callback_url: 'https://zaidantechno.vercel.app/api/callback',
     return_url: 'https://zaidantechno.vercel.app/success',
   };
-      const response = await fetch("https://tripay.co.id/api-sandbox/transaction/create", {
+   app.post("/create-transaction", async (req, res) => {
+  try {
+    const response = await fetch("https://tripay.co.id/api-sandbox/transaction/create", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${DEV-LL680trseR5ykapP8MHOdUyTawnQlSidnIETKCm7}`,
+        Authorization: `Bearer ${process.env.b6nHA-E3B9J-LGL8v-t0MUr-OKQf6}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ ...payload, signature }),
+      body: JSON.stringify(req.body),
     });
 
-    const data = await response.json();
-    res.status(200).json(data);
-
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Gagal membuat transaksi" });
+    const data = await response.json(); // parsing dari Tripay
+    res.json(data); // kirim balik ke frontend dalam bentuk JSON valid
+  } catch (err) {
+    res.status(500).json({ error: err.message }); // kalau error, tetap JSON
   }
-}
+});
+
