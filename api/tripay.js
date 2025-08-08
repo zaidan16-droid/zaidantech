@@ -1,15 +1,20 @@
 export default async function handler(req, res) {
-  if (req.method !== 'POST') return res.status(405).end();
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Method Not Allowed" });
+  }
 
+  try {
   const crypto = await import('crypto');
-  const { zaidan, zaidanshafi6@gmail.com, 10000 } = req.body;
+  const fetch = (await import("node-fetch")).default;
+
 
   const merchantCode = 'T43073'; // ganti dengan kode aslimu
   const apiKey = 'DEV-LL680trseR5ykapP8MHOdUyTawnQlSidnIETKCm7    ';
-  const privateKey = 'b6nHA-E3B9J-LGL8v-t0MUr-OKQf6'
-    ';
-
-  const data = {
+  const privateKey = 'b6nHA-E3B9J-LGL8v-t0MUr-OKQf6' ';
+    
+const { name, email, amount } = req.body;
+    
+  const payload = {
     method: 'QRIS',
     merchant_ref: 'INV123' + Date.now(),
     amount: 10000,
@@ -25,11 +30,10 @@ export default async function handler(req, res) {
     ],
     callback_url: 'https://zaidantechno.vercel.app/api/callback',
     return_url: 'https://zaidantechno.vercel.app/success',
-      expired_time: Math.floor(Date.now() / 1000) + 3600,
-    signature: crypto
-      .createHmac('sha256', b6nHA-E3B9J-LGL8v-t0MUr-OKQf6)
-      .update(T43073 + 'INV123' + Date.now() + 10000)
-      .digest('hex'),
+  };
+      const signature = crypto.createHmac("sha256", b6nHA-E3B9J-LGL8v-t0MUr-OKQf6)
+      .update(T43073 + payload.merchant_ref + payload.amount)
+      .digest("hex");
   };
 
   const response = await fetch('https://tripay.co.id/api-sandbox/transaction/create', {
@@ -40,7 +44,11 @@ export default async function handler(req, res) {
     },
     body: JSON.stringify(data),
   });
+const data = await response.json();
+    res.status(200).json(data);
 
-  const result = await response.json();
-  res.status(200).json(result);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Gagal membuat transaksi" });
+  }
 }
