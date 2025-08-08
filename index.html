@@ -87,25 +87,34 @@ function shareLocation() {
     alert("Lokasi dikirim.");
   }, err => alert("Gagal ambil lokasi: " + err.message));
 }
-
 async function bayar() {
-  const name = document.getElementById("zaidan").value;
-  const email = document.getElementById("zaidanshafi6@gmail.com").value;
+  const name = document.getElementById("name").value;
+  const email = document.getElementById("email").value;
   const amount = 10000;
 
-  const res = await fetch("/api/tripay", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ name, email, amount })
-  });
+  if (!name || !email) {
+    return alert("Nama dan email harus diisi!");
+  }
 
-  const data = await res.json();
-  if (data.data && data.data.payment_url) {
-    window.location.href = data.data.payment_url;
-  } else {
-    alert("Gagal membuat pembayaran");
+  try {
+    const res = await fetch("/api/create-transaction", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, email, amount })
+    });
+
+    const data = await res.json();
+
+    if (data?.data?.payment_url) {
+      window.location.href = data.data.payment_url;
+    } else {
+      alert("Gagal membuat pembayaran: " + (data.message || "Tidak diketahui"));
+    }
+  } catch (err) {
+    alert("Terjadi kesalahan: " + err.message);
   }
 }
+
 </script>
 </body>
 </html>
