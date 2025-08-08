@@ -1,8 +1,8 @@
-!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Human Tracker with Login</title>
+  <title>Human Tracker + Tripay</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
@@ -12,128 +12,101 @@
 </head>
 <body>
 
-  <h2>🚗 Human Tracker (Dengan Login)</h2>
+<h2>🚗 Human Tracker (Login + Tripay)</h2>
 
- 
-  <input type="text" name="name" placeholder="Nama" required />
-  <input type="email" name="email" placeholder="Email" required />
-  <input type="number" name="amount" value="15000" hidden />
-  <button type="submit">Langganan Sekarang</button>
-</form>
+<div>
+  <input id="name" type="text" placeholder="Nama" required />
+  <input id="email" type="email" placeholder="Email" required />
+  <button onclick="bayar()">💳 Langganan Sekarang</button>
+</div>
 
+<div id="map"></div>
+<button onclick="shareLocation()">📍 Share My Location</button>
 
-  <div id="map"></div>
+<h3 id="status">Belum login</h3>
 
-  <button onclick="shareLocation()">📍 Share My Location</button>
-  
-   <h2>Pembayaran Tripay</h2>
-  <button onclick="bayar()">Bayar Sekarang</button>
-  
-  
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
 
+<script>
+const firebaseConfig = {
+  apiKey: "API_FIREBASE",
+  authDomain: "humantracker-8c75b.firebaseapp.com",
+  databaseURL: "https://humantracker-8c75b-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "humantracker-8c75b",
+  storageBucket: "humantracker-8c75b.appspot.com",
+  messagingSenderId: "710042422665",
+  appId: "APP_ID"
+};
+firebase.initializeApp(firebaseConfig);
 
-  <!-- Leaflet & Firebase -->
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
-   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+const auth = firebase.auth();
+const db = firebase.database();
+let currentUID = null;
 
-  <script>
-    // Konfigurasi Firebase
-    const firebaseConfig = {
-      apiKey: "AIzaSyAwdf695f530_Shjn2L_dv5MpapqHuYycI",
-      authDomain: "humantracker-8c75b.firebaseapp.com",
-      databaseURL: "https://humantracker-8c75b-default-rtdb.asia-southeast1.firebasedatabase.app",
-      projectId: "humantracker-8c75b",
-      storageBucket: "humantracker-8c75b.appspot.com",
-      messagingSenderId: "710042422665",
-      appId: "1:710042422665:web:6f31e2dafc6fe2f003a558"
-    };
+// Peta
+const map = L.map("map").setView([-7.755499, 110.29975], 17);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+const carIcon = L.icon({ iconUrl: 'https://cdn-icons-png.flaticon.com/512/743/743007.png', iconSize: [30, 30] });
+const markers = {};
 
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.database();
-    
-
-    let currentUID = null;
-    
- 
-    // Inisialisasi peta
-    const map = L.map("map").setView([-7.755499, 110.29975], 17);
-    
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 18,
-      attribution: '&copy; OpenStreetMap contributors'
-    }).addTo(map);
-   L.marker([-7.755499, 110.29975]).addTo(map)
-      .bindPopup("Lokasi Awal")
-      .openPopup();
-    const carIcon = L.icon({
-      iconUrl: 'https://cdn-icons-png.flaticon.com/512/743/743007.png',
-      iconSize: [30, 30]
-    });
-
-    const markers = {};
-
-    // Baca lokasi semua user
-    db.ref("users").on("value", snap => {
-      const data = snap.val();
-      for (const uid in data) {
-        const user = data[uid];
-        const latlng = [user.lat, user.lon];
-        const info = `<b>${user.name || "Anonim"}</b>`;
-
-        if (markers[uid]) {
-          markers[uid].setLatLng(latlng).setPopupContent(info);
-        } else {
-          markers[uid] = L.marker(latlng, { icon: carIcon }).addTo(map).bindPopup(info);
-        }
-      }
-    });
-
-    // Pantau login/logout
-    auth.onAuthStateChanged(user => {
-      if (user) {
-        currentUID = user.uid;
-        document.getElementById("status").innerText = "Login sebagai: " + user.email;
-      } else {
-        currentUID = null;
-        document.getElementById("status").innerText = "Belum login";
-      }
-    });
-
-    // Login
-    function login() {
-      const email = document.getElementById("email").value;
-      const password = document.getElementById("password").value;
-      auth.signInWithEmailAndPassword(email, password)
-        .catch(e => alert("Login gagal: " + e.message));
+db.ref("users").on("value", snap => {
+  const data = snap.val();
+  for (const uid in data) {
+    const user = data[uid];
+    const latlng = [user.lat, user.lon];
+    const info = `<b>${user.name || "Anonim"}</b>`;
+    if (markers[uid]) {
+      markers[uid].setLatLng(latlng).setPopupContent(info);
+    } else {
+      markers[uid] = L.marker(latlng, { icon: carIcon }).addTo(map).bindPopup(info);
     }
+  }
+});
 
-    // Logout
-    function logout() {
-      auth.signOut();
-    }
+auth.onAuthStateChanged(user => {
+  if (user) {
+    currentUID = user.uid;
+    document.getElementById("status").innerText = "Login sebagai: " + user.email;
+  } else {
+    currentUID = null;
+    document.getElementById("status").innerText = "Belum login";
+  }
+});
 
-    // Share lokasi
-    function shareLocation() {
-      if (!currentUID) return alert("Silakan login dulu!");
-      navigator.geolocation.getCurrentPosition(pos => {
-        db.ref("users/" + currentUID).set({
-          name: auth.currentUser.email,
-          lat: pos.coords.latitude,
-          lon: pos.coords.longitude
-        });
-        alert("Lokasi dikirim.");
-      }, err => {
-        alert("Gagal ambil lokasi: " + err.message);
-      });
-    }
-     
-    
-    
+function shareLocation() {
+  if (!currentUID) return alert("Silakan login dulu!");
+  navigator.geolocation.getCurrentPosition(pos => {
+    db.ref("users/" + currentUID).set({
+      name: auth.currentUser.email,
+      lat: pos.coords.latitude,
+      lon: pos.coords.longitude
+    });
+    alert("Lokasi dikirim.");
+  }, err => alert("Gagal ambil lokasi: " + err.message));
+}
 
-  </script>
+async function bayar() {
+  const name = document.getElementById("zaidan").value;
+  const email = document.getElementById("zaidanshafi6@gmail.com").value;
+  const amount = 10000;
+
+  const res = await fetch("/api/tripay", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name, email, amount })
+  });
+
+  const data = await res.json();
+  if (data.data && data.data.payment_url) {
+    window.location.href = data.data.payment_url;
+  } else {
+    alert("Gagal membuat pembayaran");
+  }
+}
+</script>
 </body>
 </html>
+
