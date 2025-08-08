@@ -97,22 +97,18 @@ async function bayar() {
   }
 
   try {
-    const res = await fetch("/api/create-transaction", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, email, amount })
-    });
+   const res = await fetch("/create-transaction", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify(payload),
+});
 
-    const data = await res.json();
-
-    if (data?.data?.payment_url) {
-      window.location.href = data.data.payment_url;
-    } else {
-      alert("Gagal membuat pembayaran: " + (data.message || "Tidak diketahui"));
-    }
-  } catch (err) {
-    alert("Terjadi kesalahan: " + err.message);
-  }
+const text = await res.text(); // ambil mentahan
+try {
+  const data = JSON.parse(text); // coba parse ke JSON
+  console.log("Hasil:", data);
+} catch (e) {
+  console.error("Bukan JSON, ini isinya:", text); // debug kalau salah
 }
 
 </script>
