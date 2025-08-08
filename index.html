@@ -58,17 +58,7 @@
 
     let currentUID = null;
 
-  async function submitLangganan() {
-    const name = document.getElementById("name").value;
-    const email = document.getElementById("email").value;
-
-    const res = await fetch("/api/checkout.js", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ name, email })
-    });
+ 
     // Inisialisasi peta
     const map = L.map("map").setView([-7.755499, 110.29975], 17);
     
@@ -140,15 +130,7 @@
         alert("Gagal ambil lokasi: " + err.message);
       });
     }
-    const data = await res.json();
-    if (data.success === false) {
-      alert("Gagal: " + data.error);
-    } else if (data.data?.checkout_url) {
-      window.location.href = data.data.checkout_url;
-    } else {
-      alert("Transaksi dibuat, tapi tidak ada URL QR?");
-    }
-  }
+   
     
     
 
