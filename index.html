@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Human Tracker + Tripay</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
     body { font-family: Arial; margin: 10px; }
@@ -46,7 +46,7 @@ const auth = firebase.auth();
 const db = firebase.database();
 let currentUID = null;
 
-// Peta
+// Initialize map
 const map = L.map("map").setView([-7.755499, 110.29975], 17);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 const carIcon = L.icon({ iconUrl: 'https://cdn-icons-png.flaticon.com/512/743/743007.png', iconSize: [30, 30] });
@@ -87,6 +87,7 @@ function shareLocation() {
     alert("Lokasi dikirim.");
   }, err => alert("Gagal ambil lokasi: " + err.message));
 }
+
 async function bayar() {
   const name = document.getElementById("name").value;
   const email = document.getElementById("email").value;
@@ -96,20 +97,29 @@ async function bayar() {
     return alert("Nama dan email harus diisi!");
   }
 
-  try {
-  const res = await fetch("/create-transaction", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-  });
-  const data = await res.json();
-  console.log("Hasil:", data);
-  // lanjut proses data di sini
-} catch (err) {
-  console.error("Fetch or JSON parse error:", err);
-}
+  const payload = { name, email, amount };
 
+  try {
+    const res = await fetch("/create-transaction", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    const data = await res.json();
+    console.log("Hasil:", data);
+
+    if (data?.data?.payment_url) {
+      window.location.href = data.data.payment_url;
+    } else {
+      alert("Gagal membuat pembayaran: " + (data.message || "Tidak diketahui"));
+    }
+  } catch (err) {
+    console.error("Fetch or JSON parse error:", err);
+    alert("Terjadi kesalahan saat membuat pembayaran.");
+  }
+}
 </script>
+
 </body>
 </html>
-
