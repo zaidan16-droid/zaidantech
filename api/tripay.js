@@ -19,7 +19,7 @@ export default async function handler(req, res) {
     const privateKey = "b6nHA-E3B9J-LGL8v-t0MUr-OKQf6"; // Ganti private key asli
 
     const merchantRef = "INV123" + Date.now();
-    const nominal = Number(amount);
+    const nominal = Number(10000);
 
     if (isNaN(nominal) || nominal <= 0) {
       return res.status(400).json({ error: "Amount harus berupa angka positif" });
