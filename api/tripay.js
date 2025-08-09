@@ -33,19 +33,29 @@ const { name, email, amount } = req.body;
   };
    app.post("/create-transaction", async (req, res) => {
   try {
-    const response = await fetch("https://tripay.co.id/api-sandbox/transaction/create", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${process.env.b6nHA-E3B9J-LGL8v-t0MUr-OKQf6}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(req.body),
-    });
+     const bodyToSend = { ...payload, signature };
 
-    const data = await response.json(); // parsing dari Tripay
-    res.json(data); // kirim balik ke frontend dalam bentuk JSON valid
-  } catch (err) {
-    res.status(500).json({ error: err.message }); // kalau error, tetap JSON
+    const response = await fetch(
+      "https://tripay.co.id/api-sandbox/transaction/create",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${DEV-LL680trseR5ykapP8MHOdUyTawnQlSidnIETKCm7}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(bodyToSend),
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      return res.status(response.status).json({ error: data.message || "API Tripay error" });
+    }
+
+    return res.status(200).json(data);
+  } catch (error) {
+    console.error("Error in create-transaction handler:", error);
+    res.status(500).json({ error: "Internal Server Error" });
   }
-});
-
+}
