@@ -1,9 +1,12 @@
-export default async function handler(req, res) {
-  if (req.method !== 'POST') return res.status(405).send('Method Not Allowed');
+import crypto from 'crypto';
 
-  // Verifikasi signature Tripay
-  const crypto = require('crypto');
-  const hmac = crypto.createHmac('sha256', process.env.DEV-LL680trseR5ykapP8MHOdUyTawnQlSidnIETKCm7);
+export default async function handler(req, res) {
+  if (req.method !== 'POST') {
+    return res.status(405).send('Method Not Allowed');
+  }
+
+  // Hitung signature untuk verifikasi
+  const hmac = crypto.createHmac('sha256', process.env.TRIPAY_PRIVATE_KEY);
   hmac.update(JSON.stringify(req.body));
   const signature = hmac.digest('hex');
 
@@ -11,8 +14,9 @@ export default async function handler(req, res) {
     return res.status(403).json({ error: 'Invalid signature' });
   }
 
-  // Simpan status pembayaran ke database eksternal
+  // Simpan status pembayaran ke database eksternal (misalnya Firebase)
   console.log("Webhook diterima:", req.body);
 
   res.status(200).json({ success: true });
 }
+
