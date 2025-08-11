@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Pembayaran Tripay - Vercel</title>
+</head>
+<body>
+  <h1>Pembayaran Tripay</h1>
+  <form id="payForm">
+    <label>Nama:</label><br>
+    <input type="text" id="name" required><br><br>
+
+    <label>Email:</label><br>
+    <input type="email" id="email" required><br><br>
+
+    <label>Jumlah (Rp):</label><br>
+    <input type="number" id="amount" required><br><br>
+
+    <button type="submit">Bayar Sekarang</button>
+  </form>
+
+  <div id="result" style="margin-top:20px;"></div>
+
+  <script>
+    document.getElementById("payForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const name = document.getElementById("name").value;
+      const email = document.getElementById("email").value;
+      const amount = parseInt(document.getElementById("amount").value);
+
+      document.getElementById("result").innerHTML = "Memproses pembayaran...";
+
+      try {
+        const res = await fetch("/api/create-payment", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ amount, customer_name: name, customer_email: email })
+        });
+
+        const data = await res.json();
+
+        if (data.success === false || !data.data) {
+          document.getElementById("result").innerHTML = "Gagal membuat pembayaran: " + (data.message || "Unknown error");
+          return;
+        }
+
+        // Tampilkan link pembayaran Tripay
+        document.getElementById("result").innerHTML = `
+          <p>Pembayaran berhasil dibuat!</p>
+          <p><a href="${data.data.payment_url}" target="_blank">Klik di sini untuk membayar</a></p>
+        `;
+      } catch (err) {
+        document.getElementById("result").innerHTML = "Error: " + err.message;
+      }
+    });
+  </script>
+</body>
+</html>
