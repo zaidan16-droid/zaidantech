@@ -15,12 +15,12 @@ export default async function handler(req, res) {
         merchant_ref: "INV-123" + Date.now(),
         amount: "10000",
         customer_name: "zaidan",
-        customer_email: "zaidanshafi6@gmail.com,
-        order_items: "1"
+        customer_email: "zaidanshafi6@gmail.com",
+        order_items: 1
           {
             sku: "TEST-001",
             name: "Produk Contoh",
-            price: amount,
+            price: "10000",
             quantity: 1
           }
         ],
